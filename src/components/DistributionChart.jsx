@@ -23,7 +23,7 @@ export default function DistributionChart({ sessions }) {
         })}
       </svg>
       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-        {KEYS.map((k) => <span key={k} className="text-xs text-stone-500"><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1 border border-neutral-400" style={{ background: COLOR[k] }} />{LABEL[k]}</span>)}
+        {KEYS.map((k) => <span key={k} className="text-xs text-stone-500"><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1 border border-stone-400" style={{ background: COLOR[k] }} />{LABEL[k]}</span>)}
       </div>
     </div>
   )

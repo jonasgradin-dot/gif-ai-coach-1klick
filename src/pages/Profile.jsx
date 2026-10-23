@@ -24,7 +24,7 @@ export default function Profile({ coach, coaches, settings, setSettings, onSaveC
           <input className="input mt-1 font-normal" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="För- och efternamn" /></label>
         <label className="block mb-4 font-semibold">Lag
           <input className="input mt-1 font-normal" value={team} onChange={(e) => setTeam(e.target.value)} autoComplete="off" placeholder="T.ex. P12 eller Herrar A" /></label>
-        <label className="block font-semibold">Lösenord <span className="font-normal text-neutral-500">(om du fått ett av klubben)</span>
+        <label className="block font-semibold">Lösenord <span className="font-normal text-stone-500">(om du fått ett av klubben)</span>
           <input className="input mt-1 font-normal" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="off" /></label>
       </div>
       <button className="btn w-full" onClick={submit} disabled={!name.trim()}>{ok ? 'Sparat ✓' : 'Spara'}</button>

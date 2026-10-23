@@ -55,13 +55,13 @@ export default function App() {
   const shown = coach && !unset(coach) ? coach : null
 
   return (
-    <div className="max-w-xl mx-auto pb-24 bg-neutral-100 min-h-screen">
+    <div className="max-w-xl mx-auto pb-24 bg-sand-100 min-h-screen">
       <header className="bg-white">
         <div className="flex items-center gap-3 px-4 py-2">
           <img src="/logo.png" alt="Båstads GIF" className="h-11 w-auto" />
           <div className="flex-1 leading-tight">
             <div className="font-extrabold uppercase tracking-wide">Båstads GIF</div>
-            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-widest">AI Coach</div>
+            <div className="text-xs font-semibold text-gold-700 uppercase tracking-widest">AI Coach</div>
           </div>
           {coaches.length > 1 && (
             <select className="input !w-auto !py-1 text-sm max-w-[9rem]" value={coach?.id || ''} aria-label="Tränare"
@@ -83,7 +83,7 @@ export default function App() {
         <div className="flex max-w-xl mx-auto">
           {TABS.map(([k, l]) => {
             const on = tab === k || (tab === 'report' && k === 'hist')
-            return <button key={k} onClick={() => setTab(k)} className={`flex-1 py-4 text-sm border-t-4 ${on ? 'border-white font-bold' : 'border-transparent text-neutral-400'}`}>{l}</button>
+            return <button key={k} onClick={() => setTab(k)} className={`flex-1 py-4 text-sm border-t-4 ${on ? 'border-gold-500 font-bold' : 'border-transparent text-stone-400'}`}>{l}</button>
           })}
         </div>
       </nav>

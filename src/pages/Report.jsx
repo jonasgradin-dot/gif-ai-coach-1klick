@@ -30,7 +30,7 @@ export default function Report({ session, settings, back, reload }) {
   const copy = async () => { try { await navigator.clipboard.writeText(asText(session)); setMsg('Rapport kopierad.') } catch { setMsg('Kunde inte kopiera.') } }
   return (
     <div>
-      <button className="text-black font-semibold mb-2" onClick={back}>← Tillbaka</button>
+      <button className="text-gold-700 font-semibold mb-2" onClick={back}>← Tillbaka</button>
       <p className="text-sm text-stone-500 mb-2">{when(session.start)}</p>
       <div className="card"><ReportCard s={session} /></div>
       {session.v === 2 && <Reflection session={session} settings={settings} onChange={reload} />}

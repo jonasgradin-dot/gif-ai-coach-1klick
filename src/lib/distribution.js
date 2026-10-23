@@ -1,7 +1,7 @@
 // Fördelning av tränarens språk under ett pass (ersätter Båstad-indexet).
 export const KEYS = ['instruktion', 'oppen_fraga', 'sluten_fraga', 'positiv_specifik', 'positiv_generell']
 export const LABEL = { instruktion: 'Instruktioner', oppen_fraga: 'Öppna frågor', sluten_fraga: 'Slutna frågor', positiv_specifik: 'Specifik feedback', positiv_generell: 'Allmän feedback' }
-export const COLOR = { instruktion: '#111111', oppen_fraga: '#525252', sluten_fraga: '#8a8a8a', positiv_specifik: '#bdbdbd', positiv_generell: '#e2e2e2' }
+export const COLOR = { instruktion: '#1c1917', oppen_fraga: '#b45309', sluten_fraga: '#e3b15c', positiv_specifik: '#8b8176', positiv_generell: '#d9d2c5' } // svart = instruktion, guld = frågor, varmgrå/sand = feedback
 export const MIN_UTTERANCES = 8 // färre än så → fördelningen markeras som osäker
 
 export function countTypes(utterances) {
