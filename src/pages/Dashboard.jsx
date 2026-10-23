@@ -37,11 +37,11 @@ export default function Dashboard({ sessions, settings, coach, open, reload, goT
       {rows.map((s) => (
         <div key={s.id} className="card flex items-center justify-between">
           <div onClick={() => s.status === 'done' && open(s.id)} className="flex-1">{when(s.start)}{s.dur ? ' · ' + fmt(s.dur) : ''}</div>
-          {s.status === 'done' ? <span className="text-sm text-emerald-600" onClick={() => open(s.id)}>Visa →</span>
+          {s.status === 'done' ? <span className="text-sm text-black" onClick={() => open(s.id)}>Visa →</span>
             : <button className="btn !py-1 !px-3 text-sm" onClick={() => retry(s)}>Försök igen</button>}
         </div>
       ))}
-      {done.length > 3 && <button className="text-emerald-700 text-sm" onClick={goHistory}>Se all historik →</button>}
+      {done.length > 3 && <button className="text-black font-semibold text-sm" onClick={goHistory}>Se all historik →</button>}
     </div>
   )
 }

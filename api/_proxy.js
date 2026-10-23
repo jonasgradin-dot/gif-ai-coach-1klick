@@ -2,10 +2,10 @@
 // Nyckeln GROQ_API_KEY finns bara här på servern – användarna behöver ingen nyckel.
 export const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json' } })
 
-// Valfri åtkomstkod (ACCESS_CODE) så att inte vem som helst kan använda din gratiskvot.
+// Valfri lösenord (ACCESS_CODE) så att inte vem som helst kan använda din gratiskvot.
 export function guard(request) {
   const code = process.env.ACCESS_CODE
-  if (code && request.headers.get('authorization') !== 'Bearer ' + code) return json({ error: 'Fel eller saknad åtkomstkod.' }, 401)
+  if (code && request.headers.get('authorization') !== 'Bearer ' + code) return json({ error: 'Fel eller saknat lösenord.' }, 401)
   if (!process.env.GROQ_API_KEY) return json({ error: 'Servern saknar GROQ_API_KEY (se README).' }, 500)
   return null
 }

@@ -15,7 +15,7 @@ Analysen (Whisper + chatt) körs via serverfunktioner i `api/` som håller **din
 ## B. Tränarna – ett knapptryck
 1. Öppna länken på mobilen.
 2. Android: tryck **📲 Installera appen**. iPhone (Safari): **Dela → Lägg till på hemskärmen**.
-3. Har klubben satt en åtkomstkod: **Profil → Åtkomstkod** (en gång). Annars inget mer.
+3. Har klubben satt en lösenord: **Profil → Lösenord** (en gång). Annars inget mer.
 
 ## Lokalt
 ```bash

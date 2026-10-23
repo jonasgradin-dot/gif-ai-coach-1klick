@@ -33,13 +33,14 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
       workbox: { navigateFallbackDenylist: [/^\/api\//] },
-      includeAssets: ['pwa-192.png', 'pwa-512.png'],
+      includeAssets: ['logo.png', 'favicon.png', 'apple-touch-icon.png', 'pwa-192.png', 'pwa-512.png'],
       manifest: {
         name: 'Båstads GIF AI Coach', short_name: 'GIF Coach', lang: 'sv',
-        start_url: '/', display: 'standalone', background_color: '#065f46', theme_color: '#065f46',
+        start_url: '/', display: 'standalone', background_color: '#ffffff', theme_color: '#ffffff',
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       }
     })

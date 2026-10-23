@@ -16,14 +16,14 @@ export default function DistributionChart({ sessions }) {
           const t = total(s.counts), cx = 32 + (i + 0.5) * slot; let cum = 0
           return (
             <g key={s.id}>
-              {KEYS.map((k) => { const f = (s.counts[k] || 0) / t; const y = bottom - (cum + f) * ph; cum += f; return f > 0 && <rect key={k} x={cx - bw / 2} y={y} width={bw} height={f * ph} fill={COLOR[k]} /> })}
+              {KEYS.map((k) => { const f = (s.counts[k] || 0) / t; const y = bottom - (cum + f) * ph; cum += f; return f > 0 && <rect key={k} x={cx - bw / 2} y={y} width={bw} height={f * ph} fill={COLOR[k]} stroke="#fff" strokeWidth="0.75" /> })}
               <text x={cx} y={H - 8} textAnchor="middle" className="fill-stone-500 text-[10px]">{new Date(s.start).toLocaleDateString('sv-SE', { day: 'numeric', month: 'numeric' })}</text>
             </g>
           )
         })}
       </svg>
       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-        {KEYS.map((k) => <span key={k} className="text-xs text-stone-500"><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1" style={{ background: COLOR[k] }} />{LABEL[k]}</span>)}
+        {KEYS.map((k) => <span key={k} className="text-xs text-stone-500"><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1 border border-neutral-400" style={{ background: COLOR[k] }} />{LABEL[k]}</span>)}
       </div>
     </div>
   )

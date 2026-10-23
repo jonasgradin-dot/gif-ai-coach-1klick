@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { @apply bg-stone-100 text-stone-900 dark:bg-stone-950 dark:text-stone-100; padding-top: env(safe-area-inset-top); }
-.card { @apply rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 mb-3; }
-.btn { @apply rounded-xl px-4 py-3 font-semibold bg-emerald-700 text-white disabled:opacity-50; }
-.input { @apply w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-transparent px-3 py-2; }
+html { background: #fff; }
+body { @apply bg-neutral-100 text-black; padding-top: env(safe-area-inset-top); }
+.card { @apply rounded-2xl bg-white border border-neutral-300 p-4 mb-3; }
+.btn { @apply rounded-xl px-4 py-3 font-semibold bg-black text-white disabled:opacity-50; }
+.input { @apply w-full rounded-xl border border-neutral-400 bg-white px-3 py-2 text-black; }
+/* Vertikala ränder som i Båstads GIF:s vapen */
+.stripes { height: 8px; background: repeating-linear-gradient(90deg, #000 0 16px, #fff 16px 32px); box-shadow: inset 0 0 0 1px #000; }

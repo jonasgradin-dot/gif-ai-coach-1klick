@@ -22,7 +22,7 @@ export async function post(cfg, path, { json, form }, tries = 4) {
       await sleep(r.status === 429 && ra ? Math.min(ra, 90) * 1000 : 1500 * a * a); continue
     }
     const t = (await r.text()).slice(0, 200)
-    if (r.status === 401) throw new Error('Fel eller saknad åtkomstkod – ange den under Profil.')
+    if (r.status === 401) throw new Error('Fel eller saknat lösenord – ange det under Profil.')
     throw new Error(r.status === 429 ? 'Gratisgränsen är nådd – vänta en stund och försök igen. ' + t : `API ${r.status}: ${t}`)
   }
 }
