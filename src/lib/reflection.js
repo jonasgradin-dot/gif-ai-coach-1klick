@@ -16,7 +16,7 @@ export async function processReflection(s, cfg, onStatus = () => {}) {
   const transcript = segs.map((x) => x.text).join(' ').trim()
   if (!transcript) throw new Error('Inget tal kunde uppfattas – spela in igen.')
   onStatus('Sammanfattar reflektionen…')
-  const summary = await summarizeReflection(cfg, { transcript, counts: s.counts, index: s.index, report: s.report })
+  const summary = await summarizeReflection(cfg, { transcript, counts: s.counts, report: s.report })
   s.reflection = { transcript, summary, at: Date.now() }
   await saveSession(s); await dropChunks(key(s))
   return s

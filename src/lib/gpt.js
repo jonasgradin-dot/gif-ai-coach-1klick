@@ -1,5 +1,6 @@
 import { chatJson } from './openai'
 import { fmt, when } from './util'
+import { shares } from './distribution'
 
 export const TYPER = ['oppen_fraga', 'sluten_fraga', 'instruktion', 'positiv_specifik', 'positiv_generell']
 
@@ -13,13 +14,13 @@ Plocka ut ENDAST tränarens tydliga uttalanden och klassa varje som exakt en av:
 Hoppa över spelares prat och oklara fragment. Citera kort (max 120 tecken).
 Svara ENDAST med JSON: {"uttranden":[{"tid":"mm:ss","typ":"<en av typerna>","text":"..."}]}`
 
-const SYS_REPORT = `Du är en erfaren, stödjande fotbollsutbildare i Båstads GIF. Skriv en tränarrapport på svenska utifrån mätdata om tränarens språk under ett pass (frågor, instruktioner, feedback) och tidigare pass.
+const SYS_REPORT = `Du är en erfaren, stödjande fotbollsutbildare i Båstads GIF. Skriv en tränarrapport på svenska utifrån mätdata om fördelningen av tränarens språk under ett pass (instruktioner, öppna/slutna frågor, specifik/allmän feedback, antal och procent) och tidigare pass. Använd inget poängsystem eller index – beskriv bara fördelningen.
 Var konkret, ärlig och uppmuntrande; hitta inte på sådant som inte syns i data. Svara ENDAST med JSON:
-{"sammanfattning":"3-4 meningar","trend":"1-2 meningar om utveckling mot tidigare pass (eller att detta är första passet)","styrkor":["max 3"],"utveckling":["max 3 konkreta förbättringsområden"],"fokus":"EN sak att öva på nästa pass, med ett exempel på formulering"}`
+{"sammanfattning":"3-4 meningar","trend":"1-2 meningar om hur fördelningen ändrats mot tidigare pass (eller att detta är första passet)","styrkor":["max 3"],"utveckling":["max 3 konkreta förbättringsområden"],"fokus":"EN sak att öva på nästa pass, med ett exempel på formulering"}`
 
-const SYS_REFLECT = `Du sammanfattar en fotbollstränares TALADE reflektion efter ett träningspass (svenska, talspråk, kan vara osammanhängande). Du får också passets mätdata och AI-rapport.
+const SYS_REFLECT = `Du sammanfattar en fotbollstränares TALADE reflektion efter ett träningspass (svenska, talspråk, kan vara osammanhängande). Du får också passets mätdata (fördelning av språktyper) och AI-rapport.
 Håll dig till det tränaren faktiskt sa. Svara ENDAST med JSON:
-{"sammanfattning":"2-4 meningar","laranden":["max 3 insikter tränaren själv nämnde"],"atgarder":["max 3 konkreta saker att göra på nästa pass"],"koppling":"1-2 meningar om hur reflektionen stämmer med eller skiljer sig från mätdatan"}`
+{"sammanfattning":"2-4 meningar","laranden":["max 3 insikter tränaren själv nämnde"],"atgarder":["max 3 konkreta saker att göra på nästa pass"],"koppling":"1-2 meningar om hur reflektionen stämmer med eller skiljer sig från fördelningen"}`
 
 export async function classify(segments, cfg, onStatus = () => {}) {
   const lines = segments.map((s) => (s.t != null ? `[${fmt(s.t * 1000)}] ` : '') + s.text.trim()).filter(Boolean)
@@ -37,14 +38,14 @@ export async function classify(segments, cfg, onStatus = () => {}) {
 
 const arr = (x) => (Array.isArray(x) ? x.map(String).slice(0, 3) : [])
 
-export async function writeReport(cfg, { counts, idx, utterances, history }) {
+export async function writeReport(cfg, { counts, utterances, history }) {
   const sample = TYPER.flatMap((t) => utterances.filter((u) => u.typ === t).slice(0, 3)).map((u) => `${u.typ}: "${u.text}"`)
-  const hist = history.map((h) => `${when(h.start)}: index ${h.index}, frågor ${h.counts ? h.counts.oppen_fraga + h.counts.sluten_fraga : '?'}`)
-  const j = await chatJson(cfg, SYS_REPORT, JSON.stringify({ antal: counts, bastad_index: idx.total, delpoang: idx.parts, exempel: sample, tidigare_pass: hist }))
+  const hist = history.filter((h) => h.counts).map((h) => `${when(h.start)}: ` + shares(h.counts).map((x) => `${x.k} ${x.pct}%`).join(', '))
+  const j = await chatJson(cfg, SYS_REPORT, JSON.stringify({ antal: counts, procent: shares(counts), exempel: sample, tidigare_pass: hist }))
   return { sammanfattning: j.sammanfattning || '', trend: j.trend || '', styrkor: arr(j.styrkor), utveckling: arr(j.utveckling), fokus: j.fokus || '' }
 }
 
-export async function summarizeReflection(cfg, { transcript, counts, index, report }) {
-  const j = await chatJson(cfg, SYS_REFLECT, JSON.stringify({ reflektion: transcript.slice(0, 12000), antal: counts, bastad_index: index, rapport: report }))
+export async function summarizeReflection(cfg, { transcript, counts, report }) {
+  const j = await chatJson(cfg, SYS_REFLECT, JSON.stringify({ reflektion: transcript.slice(0, 12000), antal: counts, rapport: report }))
   return { sammanfattning: j.sammanfattning || '', laranden: arr(j.laranden), atgarder: arr(j.atgarder), koppling: j.koppling || '' }
 }

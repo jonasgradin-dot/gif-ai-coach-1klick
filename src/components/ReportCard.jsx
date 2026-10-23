@@ -1,7 +1,5 @@
-import { fmt } from '../lib/util'
-
-const LABEL = { oppen_fraga: 'Öppna frågor', sluten_fraga: 'Slutna frågor', instruktion: 'Instruktioner', positiv_specifik: 'Specifik feedback', positiv_generell: 'Allmän feedback' }
-const BARS = [['balans', 'Balans i språket'], ['fragekvalitet', 'Frågekvalitet'], ['feedbackkvalitet', 'Feedbackkvalitet']]
+import DistributionBar from './DistributionBar'
+import { KEYS, LABEL, COLOR, shares, total } from '../lib/distribution'
 
 function List({ title, items, tone }) {
   if (!items?.length) return null
@@ -11,13 +9,12 @@ function List({ title, items, tone }) {
   )
 }
 
-function Legacy({ s }) { // pass från v1.0
+function Legacy({ s }) { // pass från v1.0 (ingen uppdelning i typer)
   const r = s.result
   if (!r) return null
   return (
     <div>
-      <div className="text-center text-6xl font-extrabold text-emerald-600">{s.index}</div>
-      <p className="text-center text-sm text-stone-500 mb-3">Båstad-index (v1) · frågor {r.fragor.antal} · instruktioner {r.instruktioner.antal} · positiv {r.positiv.antal}</p>
+      <p className="text-sm text-stone-500 mb-2">Frågor {r.fragor.antal} · instruktioner {r.instruktioner.antal} · positiv feedback {r.positiv.antal}</p>
       <p className="mb-2">{r.rapport}</p>
       {r.tips && <p><b>Tips:</b> {r.tips}</p>}
     </div>
@@ -25,25 +22,20 @@ function Legacy({ s }) { // pass från v1.0
 }
 
 export default function ReportCard({ s }) {
-  if (s.v !== 2) return <Legacy s={s} />
-  const R = s.report || {}
+  if (s.v !== 2 || !s.counts) return <Legacy s={s} />
+  const R = s.report || {}, t = total(s.counts)
   return (
     <div>
-      <div className="text-center">
-        <div className="text-6xl font-extrabold text-emerald-600">{s.index}</div>
-        <div className="text-sm text-stone-500">Båstad-index</div>
-      </div>
-      {s.lowData && <p className="my-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-sm">Få uttalanden kunde identifieras (kort pass eller dåligt ljud) – tolka indexet försiktigt.</p>}
-      <div className="my-3 space-y-2">
-        {BARS.map(([k, l]) => (
-          <div key={k}><div className="flex justify-between text-xs text-stone-500"><span>{l}</span><span>{s.indexParts[k]}</span></div>
-            <div className="h-2 rounded bg-stone-200 dark:bg-stone-800"><div className="h-2 rounded bg-emerald-600" style={{ width: s.indexParts[k] + '%' }} /></div></div>
-        ))}
-      </div>
-      <div className="grid grid-cols-5 gap-1 mb-4">
-        {Object.keys(LABEL).map((k) => (
-          <div key={k} className="rounded-xl bg-stone-100 dark:bg-stone-800 p-2 text-center">
-            <b className="block text-lg">{s.counts[k]}</b><span className="text-[10px] leading-tight text-stone-500 block">{LABEL[k]}</span></div>
+      <h3 className="font-semibold text-lg mb-1">Fördelning under passet</h3>
+      <p className="text-sm text-stone-500 mb-2">{t} uttalanden identifierade</p>
+      {t < 8 && <p className="mb-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-sm">Få uttalanden kunde identifieras (kort pass eller dåligt ljud) – tolka fördelningen försiktigt.</p>}
+      <DistributionBar counts={s.counts} h="h-8" />
+      <div className="mt-3 mb-4 space-y-1">
+        {shares(s.counts).map(({ k, n, pct }) => (
+          <div key={k} className="flex items-center text-sm">
+            <span className="inline-block w-3 h-3 rounded-sm mr-2" style={{ background: COLOR[k] }} />
+            <span className="flex-1">{LABEL[k]}</span><span className="text-stone-500 mr-3">{n} st</span><b className="w-12 text-right">{pct} %</b>
+          </div>
         ))}
       </div>
 
