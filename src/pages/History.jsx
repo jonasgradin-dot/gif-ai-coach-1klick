@@ -17,16 +17,16 @@ export default function History({ coach, sessions, open }) {
     <div>
       <h1 className="text-xl font-bold mb-3">Historik – {coach?.name}</h1>
       <div className="card"><DistributionChart sessions={done.slice().reverse()} /></div>
-      {!done.length && <p className="text-stone-500">Inga analyserade pass än.</p>}
+      {!done.length && <p className="text-stone-700">Inga analyserade pass än.</p>}
       {groups.map((g) => (
         <div key={g.k} className="mb-4">
           <div className="flex justify-between items-baseline mb-1">
-            <h2 className="font-semibold capitalize">{g.k}</h2><span className="text-sm text-stone-500">{g.items.length} pass</span>
+            <h2 className="font-semibold capitalize">{g.k}</h2><span className="text-sm text-stone-700">{g.items.length} pass</span>
           </div>
           <div className="mb-2"><DistributionBar counts={sumCounts(g.items)} h="h-3" /></div>
           {g.items.map((s) => (
             <div key={s.id} className="card cursor-pointer" onClick={() => open(s.id)}>
-              <div className="text-sm text-stone-500 mb-1">{when(s.start)}{s.reflection ? ' · 🎙 reflektion' : ''}</div>
+              <div className="text-sm text-stone-700 mb-1">{when(s.start)}{s.reflection ? ' · 🎙 reflektion' : ''}</div>
               {s.counts && <div className="mb-2"><DistributionBar counts={s.counts} h="h-3" /></div>}
               <p className="text-sm line-clamp-2">{line(s)}</p>
             </div>

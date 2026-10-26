@@ -4,6 +4,7 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: { extend: { colors: {
     sand: { 100: '#f5f1ea', 200: '#ebe4d6', 300: '#d8cdb8' },
+    pitch: { 200: '#d9ecd0', 300: '#a9d8a0', 400: '#8ccb82', 500: '#6fb066' },
     gold: { 50: '#fbf5e8', 200: '#ecd7a6', 500: '#c58b2d', 700: '#8a5a12' }
   } } },
   plugins: []

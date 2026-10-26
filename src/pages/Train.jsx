@@ -29,16 +29,16 @@ export default function Train({ coach, settings, onDone }) {
   }
   return (
     <div className="text-center">
-      <p className="text-sm text-stone-500">Tränare: {coach?.name}</p>
+      <p className="text-sm text-stone-700">Tränare: {coach?.name}</p>
       <div className="text-6xl font-mono my-6">{fmt(rec.elapsed)}</div>
       <button onClick={toggle} disabled={busy}
-        className={`w-full rounded-3xl py-8 text-2xl font-bold text-white disabled:opacity-50 ${rec.recording ? 'bg-red-600' : 'bg-black'}`}>
+        className={`w-full rounded-3xl py-8 text-2xl font-bold disabled:opacity-50 border-2 ${rec.recording ? 'bg-red-600 text-white border-red-700' : 'bg-pitch-300 text-black border-pitch-500'}`}>
         {rec.recording ? 'STOPPA TRÄNING' : 'STARTA TRÄNING'}
       </button>
-      <p className={`mt-4 text-sm ${err ? 'text-red-600' : 'text-stone-500'}`}>
+      <p className={`mt-4 text-sm ${err ? 'text-red-600' : 'text-stone-700'}`}>
         {rec.recording ? '● Spelar in – lägg telefonen i fickan med skärmen tänd.' : msg || (busy ? 'Bearbetar…' : 'Redo.')}
       </p>
-      <p className="mt-6 text-xs text-stone-500">Webbappar kan inte spela in med låst skärm. Skärmen hålls tänd under passet.</p>
+      <p className="mt-6 text-xs text-stone-700">Webbappar kan inte spela in med låst skärm. Skärmen hålls tänd under passet.</p>
     </div>
   )
 }

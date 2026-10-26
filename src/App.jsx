@@ -55,7 +55,8 @@ export default function App() {
   const shown = coach && !unset(coach) ? coach : null
 
   return (
-    <div className="max-w-xl mx-auto pb-24 bg-sand-100 min-h-screen">
+    <div className="max-w-xl mx-auto pb-24 min-h-screen">
+      <div className="pitch" aria-hidden="true" />
       <header className="bg-white">
         <div className="flex items-center gap-3 px-4 py-2">
           <img src="/logo.png" alt="Båstads GIF" className="h-11 w-auto" />
@@ -77,7 +78,7 @@ export default function App() {
         {tab === 'train' && <Train {...{ settings }} coach={shown} onDone={done} />}
         {tab === 'hist' && <History coach={shown} sessions={mine} open={open} />}
         {tab === 'report' && <Report session={sessions.find((s) => s.id === reportId)} settings={settings} back={() => setTab('hist')} reload={reload} />}
-        {tab === 'profile' && <Profile {...{ coach, coaches, onNewCoach, onRemoveCoach }} settings={raw} setSettings={setSettings} onSaveCoach={(c) => setCoaches(saveCoach(c))} />}
+        {tab === 'profile' && <Profile {...{ coach, coaches, onNewCoach, onRemoveCoach }} settings={raw} setSettings={setSettings} onSaveCoach={(c) => setCoaches(saveCoach(c))} onSaved={() => setTab('dash')} />}
       </main>
       <nav className="fixed bottom-0 inset-x-0 bg-black text-white pb-[env(safe-area-inset-bottom)]">
         <div className="flex max-w-xl mx-auto">

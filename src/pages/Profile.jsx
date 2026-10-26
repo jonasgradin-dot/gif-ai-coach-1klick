@@ -3,18 +3,17 @@ import { save } from '../lib/util'
 
 const clean = (n) => (n === 'Tränare' ? '' : n || '') // äldre standardnamn räknas som "inte ifyllt"
 
-export default function Profile({ coach, coaches, settings, setSettings, onSaveCoach, onNewCoach, onRemoveCoach }) {
+export default function Profile({ coach, coaches, settings, setSettings, onSaveCoach, onNewCoach, onRemoveCoach, onSaved }) {
   const [name, setName] = useState('')
   const [team, setTeam] = useState('')
   const [pw, setPw] = useState('')
-  const [ok, setOk] = useState(false)
-  useEffect(() => { setName(clean(coach?.name)); setTeam(coach?.team || ''); setPw(settings.accessCode || '') }, [coach?.id])
+    useEffect(() => { setName(clean(coach?.name)); setTeam(coach?.team || ''); setPw(settings.accessCode || '') }, [coach?.id])
 
   const submit = () => {
     if (!name.trim() || !coach) return
     onSaveCoach({ ...coach, name: name.trim(), team: team.trim() })
     const s = { ...settings, accessCode: pw }; save('gif_settings', s); setSettings(s)
-    setOk(true); setTimeout(() => setOk(false), 1500)
+    onSaved() // gå till startsidan
   }
   return (
     <div>
@@ -27,7 +26,7 @@ export default function Profile({ coach, coaches, settings, setSettings, onSaveC
         <label className="block font-semibold">Lösenord <span className="font-normal text-stone-500">(om du fått ett av klubben)</span>
           <input className="input mt-1 font-normal" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="off" /></label>
       </div>
-      <button className="btn w-full" onClick={submit} disabled={!name.trim()}>{ok ? 'Sparat ✓' : 'Spara'}</button>
+      <button className="btn w-full" onClick={submit} disabled={!name.trim()}>Spara</button>
       <div className="mt-6 text-sm flex gap-4">
         <button className="underline" onClick={onNewCoach}>+ Lägg till ytterligare tränare</button>
         {coaches.length > 1 && coach && <button className="underline text-red-600" onClick={() => confirm(`Radera ${coach.name || 'tränaren'} och alla pass?`) && onRemoveCoach(coach.id)}>Radera denna</button>}

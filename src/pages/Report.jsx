@@ -31,7 +31,7 @@ export default function Report({ session, settings, back, reload }) {
   return (
     <div>
       <button className="text-gold-700 font-semibold mb-2" onClick={back}>← Tillbaka</button>
-      <p className="text-sm text-stone-500 mb-2">{when(session.start)}</p>
+      <p className="text-sm text-stone-700 mb-2">{when(session.start)}</p>
       <div className="card"><ReportCard s={session} /></div>
       {session.v === 2 && <Reflection session={session} settings={settings} onChange={reload} />}
       {msg && <p className={`text-sm mb-2 ${err ? 'text-red-600' : 'text-stone-500'}`}>{msg}</p>}
