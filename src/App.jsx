@@ -62,7 +62,7 @@ export default function App() {
           <img src="/logo.png" alt="Båstads GIF" className="h-11 w-auto" />
           <div className="flex-1 leading-tight">
             <div className="font-extrabold uppercase tracking-wide">Båstads GIF</div>
-            <div className="text-xs font-semibold text-gold-700 uppercase tracking-widest">AI Coach</div>
+            <div className="text-sm font-semibold text-gold-700">Din coachkompis</div>
           </div>
           {coaches.length > 1 && (
             <select className="input !w-auto !py-1 text-sm max-w-[9rem]" value={coach?.id || ''} aria-label="Tränare"
