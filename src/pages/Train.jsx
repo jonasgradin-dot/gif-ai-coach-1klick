@@ -21,7 +21,7 @@ export default function Train({ coach, settings, onDone }) {
     }
     const info = await rec.stop()
     setBusy(true)
-    const session = { ...info, coachId: coach.id, coach: coach.name, status: 'pending', parts: [] }
+    const session = { ...info, coachId: coach.id, coach: coach.name, team: coach.team || '', status: 'pending', parts: [] }
     await putSession(session)
     try { const s = await processSession(session, settings, setMsg); onDone(s.id) }
     catch (e) { fail(e.message + ' – ljudet är sparat. Försök igen från Dashboard.') }

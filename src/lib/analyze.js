@@ -1,8 +1,9 @@
 import { getChunks, putSession, dropChunks, allSessions } from './db'
-import { saveSession } from './store'
+import { saveSession, loadCoaches } from './store'
 import { transcribeChunk } from './whisper'
 import { classify, writeReport } from './gpt'
-import { countTypes, total, MIN_UTTERANCES } from './distribution'
+import { countTypes, countTags, total, MIN_UTTERANCES } from './distribution'
+import { bandFor, bandInfo } from './plan'
 import { fmt } from './util'
 
 async function transcribe(s, cfg, onStatus) {
@@ -26,13 +27,15 @@ async function analyze(s, cfg, onStatus) {
     s.segments = s.transcript.split('\n').filter(Boolean).map((text) => ({ t: null, text }))
   }
   const utterances = await classify(s.segments, cfg, onStatus)
-  const counts = countTypes(utterances)
+  const counts = countTypes(utterances), tags = countTags(utterances)
+  const team = s.team ?? loadCoaches().find((c) => c.id === s.coachId)?.team ?? ''
+  const band = bandFor(team)
   onStatus('Skriver tränarrapport…')
   const history = (await allSessions())
     .filter((x) => x.status === 'done' && x.id !== s.id && x.coachId === s.coachId && x.start < s.start)
     .sort((a, b) => a.start - b.start).slice(-3)
-  s.report = await writeReport(cfg, { counts, utterances, history })
-  Object.assign(s, { v: 2, utterances, counts, lowData: total(counts) < MIN_UTTERANCES, status: 'done' })
+  s.report = await writeReport(cfg, { counts, utterances, history, band, tags, team })
+  Object.assign(s, { v: 2, utterances, counts, tags, team, band: bandInfo(band), lowData: total(counts) < MIN_UTTERANCES, status: 'done' })
   await saveSession(s) // lokalt + Firestore
 }
 

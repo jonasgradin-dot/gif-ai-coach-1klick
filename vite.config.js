@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
       workbox: { navigateFallbackDenylist: [/^\/api\//] },
       includeAssets: ['logo.png', 'pitch.svg', 'favicon.png', 'apple-touch-icon.png', 'pwa-192.png', 'pwa-512.png'],
       manifest: {
-        name: 'Båstads GIF AI Coach', short_name: 'GIF Coach', lang: 'sv',
+        name: 'Båstads GIF – Din coachkompis', short_name: 'GIF Coach', lang: 'sv',
         start_url: '/', display: 'standalone', background_color: '#d9ecd0', theme_color: '#ffffff',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

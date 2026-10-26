@@ -22,7 +22,8 @@ export default function Profile({ coach, coaches, settings, setSettings, onSaveC
         <label className="block mb-4 font-semibold">Namn
           <input className="input mt-1 font-normal" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="För- och efternamn" /></label>
         <label className="block mb-4 font-semibold">Lag
-          <input className="input mt-1 font-normal" value={team} onChange={(e) => setTeam(e.target.value)} autoComplete="off" placeholder="T.ex. P12 eller Herrar A" /></label>
+          <input className="input mt-1 font-normal" value={team} onChange={(e) => setTeam(e.target.value)} autoComplete="off" placeholder="T.ex. P12 eller Herrar A" />
+          <span className="block mt-1 text-xs font-normal text-stone-500">Ange åldern (t.ex. P12) så anpassas feedbacken efter spelarutbildningsplanen.</span></label>
         <label className="block font-semibold">Lösenord <span className="font-normal text-stone-500">(om du fått ett av klubben)</span>
           <input className="input mt-1 font-normal" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="off" /></label>
       </div>

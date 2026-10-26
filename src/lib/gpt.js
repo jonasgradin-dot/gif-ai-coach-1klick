@@ -1,26 +1,38 @@
 import { chatJson } from './openai'
 import { fmt, when } from './util'
-import { shares } from './distribution'
+import { shares, TAGS } from './distribution'
+import { planText } from './plan'
 
 export const TYPER = ['oppen_fraga', 'sluten_fraga', 'instruktion', 'positiv_specifik', 'positiv_generell']
 
 const SYS_CLASSIFY = `Du analyserar en transkribering (svenska, med tidsstämplar [mm:ss]) av en fotbollstränares tal under ett träningspass. Texten kan innehålla spelares röster, brus och Whisper-fel.
-Plocka ut ENDAST tränarens tydliga uttalanden och klassa varje som exakt en av:
+Plocka ut ENDAST tränarens tydliga uttalanden och klassa varje som exakt en av (fältet "typ"):
 - oppen_fraga: fråga som kräver reflektion/eget svar ("Vad ser du för ytor?")
 - sluten_fraga: ja/nej- eller envarsfråga ("Är du fri?")
 - instruktion: order, anvisning, korrigering, organisation
 - positiv_specifik: beröm som säger VAD som var bra ("Bra öppen kropp där!")
 - positiv_generell: allmänt beröm ("Bra!", "Snyggt!")
-Hoppa över spelares prat och oklara fragment. Citera kort (max 120 tecken).
-Svara ENDAST med JSON: {"uttranden":[{"tid":"mm:ss","typ":"<en av typerna>","text":"..."}]}`
+Sätt dessutom, när det passar, högst EN "tag" (annars tom sträng) som speglar Båstads GIF:s spelarutbildningsplan:
+- forsok: beröm/uppmuntran av försök, mod eller ansträngning, särskilt när det inte lyckades ("Bra försök!", "Våga!")
+- lagkamrat: uppmaning att hjälpa, peppa eller göra lagkamrater bättre
+- reflektion: fråga som får spelarna att reflektera (vad var roligast, vad lärde ni er, känner ni igen något från träningen)
+- fair_play: respekt/fair play, t.ex. tacka motståndare eller domare, följa reglerna
+- negativ: klandrande eller kritiskt tillrop riktat mot spelare, t.ex. för ett misstag
+Bedöm bara ordval, inte tonfall. Hoppa över spelares prat och oklara fragment. Citera kort (max 120 tecken).
+Svara ENDAST med JSON: {"uttranden":[{"tid":"mm:ss","typ":"<en av typerna>","tag":"<tagg eller tom>","text":"..."}]}`
 
-const SYS_REPORT = `Du är en erfaren, stödjande fotbollsutbildare i Båstads GIF. Skriv en tränarrapport på svenska utifrån mätdata om fördelningen av tränarens språk under ett pass (instruktioner, öppna/slutna frågor, specifik/allmän feedback, antal och procent) och tidigare pass. Använd inget poängsystem eller index – beskriv bara fördelningen.
-Var konkret, ärlig och uppmuntrande; hitta inte på sådant som inte syns i data. Svara ENDAST med JSON:
-{"sammanfattning":"3-4 meningar","trend":"1-2 meningar om hur fördelningen ändrats mot tidigare pass (eller att detta är första passet)","styrkor":["max 3"],"utveckling":["max 3 konkreta förbättringsområden"],"fokus":"EN sak att öva på nästa pass, med ett exempel på formulering"}`
+const SYS_REPORT = `Du är en erfaren, stödjande utbildare i Båstads GIF. Skriv tränarrapporten på svenska utifrån klubbens spelarutbildningsplan (längst ned) och mätdata om tränarens språk under ett pass: fördelning av instruktioner, öppna/slutna frågor och specifik/allmän feedback samt markeringar (beröm av försök, lagkamratsuppmuntran, reflektionsfrågor, fair play, kritiska tillrop).
+Regler:
+- Utgå från planens syn på tränarrollen: relationer, egen upptäckt, engagemang och att stötta lärandet med frågor, vägledning och positivt ledarskap där misstag är en del av utvecklingen, samt att berömma goda försök.
+- Planen anger ingen idealfördelning. Beskriv fördelningen som en spegel, inte som betyg, och relatera till åldersgruppens beskrivning, fokus och matchsyn om den är känd.
+- Bedöm bara det som syns i mätdatan (språket). Påstå inget om övningsupplägg, speltid, tonfall eller vem som coachas – det går inte att höra. Hitta inte på.
+- Var konkret, ärlig och uppmuntrande. Använd planens ord där det passar.
+Svara ENDAST med JSON:
+{"sammanfattning":"3-4 meningar","trend":"1-2 meningar om hur fördelningen ändrats mot tidigare pass (eller att detta är första passet)","styrkor":["max 3, gärna kopplade till planen"],"utveckling":["max 3 konkreta förbättringsområden"],"fokus":"EN sak att öva på nästa pass, hämtad ur planen, med ett exempel på formulering","planen":"2-3 meningar om hur passet ligger i linje med spelarutbildningsplanen (åldersgruppens fokus, tränarens roll, matchsyn) – nämn bara sådant som syns eller saknas i data"}`
 
-const SYS_REFLECT = `Du sammanfattar en fotbollstränares TALADE reflektion efter ett träningspass (svenska, talspråk, kan vara osammanhängande). Du får också passets mätdata (fördelning av språktyper) och AI-rapport.
-Håll dig till det tränaren faktiskt sa. Svara ENDAST med JSON:
-{"sammanfattning":"2-4 meningar","laranden":["max 3 insikter tränaren själv nämnde"],"atgarder":["max 3 konkreta saker att göra på nästa pass"],"koppling":"1-2 meningar om hur reflektionen stämmer med eller skiljer sig från fördelningen"}`
+const SYS_REFLECT = `Du sammanfattar en fotbollstränares TALADE reflektion efter ett träningspass (svenska, talspråk, kan vara osammanhängande). Du får också passets mätdata och AI-rapport.
+Håll dig till det tränaren faktiskt sa. Koppla gärna till Båstads GIF:s spelarutbildningsplan (egen upptäckt, frågor och vägledning, positivt ledarskap där misstag är en del av lärandet, beröm av goda försök) men bara när reflektionen ger underlag för det. Svara ENDAST med JSON:
+{"sammanfattning":"2-4 meningar","laranden":["max 3 insikter tränaren själv nämnde"],"atgarder":["max 3 konkreta saker att göra på nästa pass"],"koppling":"1-2 meningar om hur reflektionen stämmer med eller skiljer sig från fördelningen och planen"}`
 
 export async function classify(segments, cfg, onStatus = () => {}) {
   const lines = segments.map((s) => (s.t != null ? `[${fmt(s.t * 1000)}] ` : '') + s.text.trim()).filter(Boolean)
@@ -31,18 +43,19 @@ export async function classify(segments, cfg, onStatus = () => {}) {
   for (let i = 0; i < wins.length; i++) {
     onStatus(`Analyserar tränarspråk (${i + 1}/${wins.length})…`)
     const j = await chatJson(cfg, SYS_CLASSIFY, wins[i])
-    for (const u of j.uttranden || []) if (TYPER.includes(u.typ) && u.text) out.push({ tid: u.tid || '', typ: u.typ, text: String(u.text).slice(0, 160) })
+    for (const u of j.uttranden || []) if (TYPER.includes(u.typ) && u.text) out.push({ tid: u.tid || '', typ: u.typ, tag: TAGS.includes(u.tag) ? u.tag : '', text: String(u.text).slice(0, 160) })
   }
   return out
 }
 
 const arr = (x) => (Array.isArray(x) ? x.map(String).slice(0, 3) : [])
 
-export async function writeReport(cfg, { counts, utterances, history }) {
+export async function writeReport(cfg, { counts, utterances, history, band = null, tags = {}, team = '' }) {
   const sample = TYPER.flatMap((t) => utterances.filter((u) => u.typ === t).slice(0, 3)).map((u) => `${u.typ}: "${u.text}"`)
   const hist = history.filter((h) => h.counts).map((h) => `${when(h.start)}: ` + shares(h.counts).map((x) => `${x.k} ${x.pct}%`).join(', '))
-  const j = await chatJson(cfg, SYS_REPORT, JSON.stringify({ antal: counts, procent: shares(counts), exempel: sample, tidigare_pass: hist }))
-  return { sammanfattning: j.sammanfattning || '', trend: j.trend || '', styrkor: arr(j.styrkor), utveckling: arr(j.utveckling), fokus: j.fokus || '' }
+  const input = { lag: team || null, aldersgrupp: band ? `${band.namn}, ${band.alder}` : null, antal: counts, procent: shares(counts), markeringar: tags, exempel: sample, tidigare_pass: hist }
+  const j = await chatJson(cfg, SYS_REPORT + '\n\n' + planText(band), JSON.stringify(input))
+  return { sammanfattning: j.sammanfattning || '', trend: j.trend || '', styrkor: arr(j.styrkor), utveckling: arr(j.utveckling), fokus: j.fokus || '', planen: j.planen || '' }
 }
 
 export async function summarizeReflection(cfg, { transcript, counts, report }) {

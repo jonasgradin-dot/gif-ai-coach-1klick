@@ -1,4 +1,4 @@
-# Båstads GIF AI Coach – 1-klicksversion (visar fördelning av språktyper, inget index) (ingen nyckel hos tränarna)
+# Båstads GIF – Din coachkompis – 1-klicksversion (visar fördelning av språktyper, inget index) (ingen nyckel hos tränarna)
 
 Analysen (Whisper + chatt) körs via serverfunktioner i `api/` som håller **din** gratis Groq-nyckel. Tränarna öppnar bara en länk och trycker **Installera appen**.
 

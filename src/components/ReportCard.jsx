@@ -1,5 +1,5 @@
 import DistributionBar from './DistributionBar'
-import { KEYS, LABEL, COLOR, shares, total } from '../lib/distribution'
+import { KEYS, LABEL, COLOR, TAGS, TAG_LABEL, shares, total } from '../lib/distribution'
 
 function List({ title, items, tone }) {
   if (!items?.length) return null
@@ -17,6 +17,20 @@ function Legacy({ s }) { // pass från v1.0 (ingen uppdelning i typer)
       <p className="text-sm text-stone-500 mb-2">Frågor {r.fragor.antal} · instruktioner {r.instruktioner.antal} · positiv feedback {r.positiv.antal}</p>
       <p className="mb-2">{r.rapport}</p>
       {r.tips && <p><b>Tips:</b> {r.tips}</p>}
+    </div>
+  )
+}
+
+function PlanBlock({ s, R }) {
+  const b = s.band
+  return (
+    <div className="rounded-xl bg-gold-50 border border-gold-200 p-3 mb-4 text-sm">
+      <h3 className="font-semibold text-base mb-1">Spelarutbildningsplanen</h3>
+      {b ? <p className="mb-2"><b>{b.namn} · {b.alder}</b> – ”{b.motto}”<br /><span className="text-stone-600">Fokus: {b.fokus.join(', ')}</span></p>
+         : <p className="mb-2 text-stone-600">Åldersgrupp okänd – skriv t.ex. P12 som lag i Profil, så anpassas feedbacken.</p>}
+      {s.tags && <div className="mb-2">{TAGS.map((k) => (
+        <div key={k} className="flex justify-between py-0.5"><span>{TAG_LABEL[k]}</span><b>{s.tags[k] || 0} st</b></div>))}</div>}
+      {R.planen && <p>{R.planen}</p>}
     </div>
   )
 }
@@ -39,6 +53,7 @@ export default function ReportCard({ s }) {
         ))}
       </div>
 
+      {(s.band || s.tags || R.planen) && <PlanBlock s={s} R={R} />}
       <h3 className="font-semibold text-lg">Tränarrapport</h3>
       <p className="mb-2">{R.sammanfattning}</p>
       {R.trend && <p className="mb-3 text-sm text-stone-500">{R.trend}</p>}
