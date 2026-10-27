@@ -24,6 +24,7 @@ const apiDev = (env) => ({
 })
 
 export default defineConfig(({ mode }) => ({
+  build: { target: 'es2018' }, // fungerar även på äldre iPhone/Android
   server: { host: true, allowedHosts: true },
   preview: { host: true, allowedHosts: true },
   plugins: [
@@ -32,7 +33,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: true },
-      workbox: { navigateFallbackDenylist: [/^\/api\//] },
+      workbox: { navigateFallbackDenylist: [/^\/api\//], cleanupOutdatedCaches: true, clientsClaim: true, skipWaiting: true },
       includeAssets: ['logo.png', 'pitch.svg', 'favicon.png', 'apple-touch-icon.png', 'pwa-192.png', 'pwa-512.png'],
       manifest: {
         name: 'Båstads GIF – Din coachkompis', short_name: 'GIF Coach', lang: 'sv',

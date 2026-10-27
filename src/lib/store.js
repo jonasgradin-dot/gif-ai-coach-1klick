@@ -22,7 +22,7 @@ export async function removeSession(id, coachId) {
   push('sessions', { id, coachId, deleted: true, updatedAt: Date.now() })
 }
 
-export const loadCoaches = () => { try { return JSON.parse(localStorage.getItem(LC) || '[]') } catch { return [] } }
+export const loadCoaches = () => { try { const l = JSON.parse(localStorage.getItem(LC) || '[]'); return Array.isArray(l) ? l.filter((c) => c && typeof c.id === 'string') : [] } catch { return [] } } // tål trasig lagrad data
 const storeCoaches = (l) => localStorage.setItem(LC, JSON.stringify(l))
 export function saveCoach(c) {
   const l = loadCoaches().filter((x) => x.id !== c.id); const item = { ...c, updatedAt: Date.now() }

@@ -61,9 +61,9 @@ export default function ReportCard({ s }) {
       <List title="Utvecklingsområden" items={R.utveckling} tone="text-gold-700" />
       {R.fokus && <div className="rounded-xl bg-gold-50 border border-gold-200 p-3 mb-3 text-sm"><b>Fokus nästa pass:</b> {R.fokus}</div>}
 
-      <details className="mb-2"><summary className="cursor-pointer text-stone-500">Alla uttalanden ({s.utterances.length})</summary>
+      <details className="mb-2"><summary className="cursor-pointer text-stone-500">Alla uttalanden ({(s.utterances || []).length})</summary>
         <ul className="text-sm mt-2 space-y-1 max-h-72 overflow-auto">
-          {s.utterances.map((u, i) => <li key={i}><span className="text-stone-500">{u.tid} · {LABEL[u.typ]}</span><br />{u.text}</li>)}
+          {(s.utterances || []).map((u, i) => <li key={i}><span className="text-stone-500">{u.tid} · {LABEL[u.typ]}</span><br />{u.text}</li>)}
         </ul></details>
       <details><summary className="cursor-pointer text-stone-500">Transkribering</summary>
         <pre className="whitespace-pre-wrap text-sm max-h-72 overflow-auto mt-2">{s.transcript}</pre></details>

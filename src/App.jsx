@@ -28,7 +28,8 @@ export default function App() {
     (async () => {
       let cs = loadCoaches()
       if (!cs.length) { const p = load('gif_profile', { name: '', team: '' }); cs = saveCoach({ id: uid(), name: p.name || '', team: p.team || '' }) }
-      for (const s of await allSessions()) {
+      let existing = []; try { existing = await allSessions() } catch (e) { console.warn('Kunde inte läsa pass:', e) }
+      for (const s of existing) {
         let ch = false
         if (s.status === 'recording') { s.status = 'pending'; s.parts = []; ch = true }
         if (!s.coachId) { s.coachId = cs[0].id; ch = true }
