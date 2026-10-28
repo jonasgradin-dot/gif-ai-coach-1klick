@@ -17,3 +17,9 @@ export const sumCounts = (list) => list.reduce((a, s) => { KEYS.forEach((k) => (
 export const TAGS = ['forsok', 'lagkamrat', 'reflektion', 'fair_play', 'negativ']
 export const TAG_LABEL = { forsok: 'Beröm av försök och mod', lagkamrat: 'Uppmuntran av lagkamrater', reflektion: 'Reflektionsfrågor', fair_play: 'Fair play och respekt', negativ: 'Kritiska tillrop' }
 export const countTags = (utterances) => { const c = Object.fromEntries(TAGS.map((k) => [k, 0])); for (const u of utterances) if (u.tag in c) c[u.tag]++; return c }
+
+// Fokusområden ur spelarutbildningsplanen (hur tränarens uttalanden fördelar sig över dem)
+export const FOKUS_LABEL = { bollbehandling: 'Bollbehandling', lekar: 'Lekar med boll', spel: 'Spel', lagdelar: 'Lagdelar', kollektiva: 'Kollektiva förflyttningar', organisation: 'Organisation och praktiskt', annat: 'Övrigt' }
+export const countFokus = (u) => { const c = Object.fromEntries(Object.keys(FOKUS_LABEL).map((k) => [k, 0])); for (const x of u) c[x.fokus in c ? x.fokus : 'annat']++; return c }
+export const topSkills = (u, n = 6) => { const m = {}; for (const x of u) if (x.farg) m[x.farg] = (m[x.farg] || 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, n).map(([namn, antal]) => ({ namn, antal })) }
+export const countNytta = (u) => u.filter((x) => x.nytta).length

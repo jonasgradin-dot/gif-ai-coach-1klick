@@ -5,11 +5,11 @@ import { when } from '../lib/util'
 import { dropChunks } from '../lib/db'
 import { removeSession } from '../lib/store'
 import { reanalyze } from '../lib/analyze'
-import { shares, LABEL } from '../lib/distribution'
+import { shares, LABEL, FOKUS_LABEL } from '../lib/distribution'
 
 function asText(s) {
   const R = s.report || {}, S = s.reflection?.summary
-  return [`Tränarrapport ${when(s.start)}`, s.counts ? 'Fördelning: ' + shares(s.counts).map((x) => `${LABEL[x.k]} ${x.pct} %`).join(', ') : '', R.sammanfattning, R.trend, R.planen ? 'Spelarutbildningsplanen: ' + R.planen : '',
+  return [`Tränarrapport ${when(s.start)}`, s.counts ? 'Fördelning: ' + shares(s.counts).map((x) => `${LABEL[x.k]} ${x.pct} %`).join(', ') : '', R.sammanfattning, R.trend, R.planen ? 'Spelarutbildningsplanen: ' + R.planen : '', (R.fokusomraden || []).length ? 'Fokusområden: ' + R.fokusomraden.map((x) => `${FOKUS_LABEL[x.id]}: ${x.kommentar}`).join(' | ') : '',
     'Styrkor: ' + (R.styrkor || []).join('; '), 'Utveckling: ' + (R.utveckling || []).join('; '), 'Fokus: ' + (R.fokus || ''),
     S ? `Reflektion: ${S.sammanfattning}\nÅtgärder: ${(S.atgarder || []).join('; ')}` : ''].filter(Boolean).join('\n\n')
 }

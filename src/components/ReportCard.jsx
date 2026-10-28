@@ -1,5 +1,5 @@
 import DistributionBar from './DistributionBar'
-import { KEYS, LABEL, COLOR, TAGS, TAG_LABEL, shares, total } from '../lib/distribution'
+import { KEYS, LABEL, COLOR, TAGS, TAG_LABEL, FOKUS_LABEL, shares, total } from '../lib/distribution'
 
 function List({ title, items, tone }) {
   if (!items?.length) return null
@@ -22,12 +22,35 @@ function Legacy({ s }) { // pass från v1.0 (ingen uppdelning i typer)
 }
 
 function PlanBlock({ s, R }) {
-  const b = s.band
+  const b = s.band, f = s.fokusCount
+  const sum = f ? Object.values(f).reduce((x, y) => x + y, 0) : 0
+  const ids = b?.fokusIds || (f ? ['bollbehandling', 'lekar', 'spel', 'lagdelar', 'kollektiva'].filter((k) => f[k] > 0) : [])
+  const note = Object.fromEntries((R.fokusomraden || []).map((x) => [x.id, x.kommentar]))
+  const Row = ({ id, muted }) => {
+    const n = f?.[id] || 0, pct = sum ? Math.round((100 * n) / sum) : 0
+    return (
+      <div className="mb-2">
+        <div className="flex justify-between"><span className={muted ? 'text-stone-500' : 'font-semibold'}>{FOKUS_LABEL[id]}</span><span><b>{pct} %</b> <span className="text-stone-500">({n} st)</span></span></div>
+        <div className="h-2 rounded bg-sand-200"><div className="h-2 rounded" style={{ width: pct + '%', background: muted ? '#a8a29e' : '#1c1917' }} /></div>
+        {note[id] && <p className="text-xs text-stone-600 mt-1">{note[id]}</p>}
+      </div>
+    )
+  }
   return (
     <div className="rounded-xl bg-gold-50 border border-gold-200 p-3 mb-4 text-sm">
       <h3 className="font-semibold text-base mb-1">Spelarutbildningsplanen</h3>
       {b ? <p className="mb-2"><b>{b.namn} · {b.alder}</b> – ”{b.motto}”<br /><span className="text-stone-600">Fokus: {b.fokus.join(', ')}</span></p>
          : <p className="mb-2 text-stone-600">Åldersgrupp okänd – skriv t.ex. P12 som lag i Profil, så anpassas feedbacken.</p>}
+      {sum > 0 && (
+        <div className="mb-3">
+          <h4 className="font-semibold mb-1">Fokusområden i passet</h4>
+          <p className="text-xs text-stone-600 mb-2">Andel av dina uttalanden som handlade om varje område.</p>
+          {ids.map((id) => <Row key={id} id={id} />)}
+          <Row id="organisation" muted /><Row id="annat" muted />
+        </div>
+      )}
+      {s.skills?.length > 0 && <p className="mb-2"><b>Färdigheter som nämndes:</b> {s.skills.map((x) => `${x.namn} (${x.antal})`).join(', ')}</p>}
+      {s.nytta !== undefined && <div className="flex justify-between py-0.5 mb-1"><span>Förklarar syfte och nytta</span><b>{s.nytta} st</b></div>}
       {s.tags && <div className="mb-2">{TAGS.map((k) => (
         <div key={k} className="flex justify-between py-0.5"><span>{TAG_LABEL[k]}</span><b>{s.tags[k] || 0} st</b></div>))}</div>}
       {R.planen && <p>{R.planen}</p>}
@@ -53,7 +76,7 @@ export default function ReportCard({ s }) {
         ))}
       </div>
 
-      {(s.band || s.tags || R.planen) && <PlanBlock s={s} R={R} />}
+      {(s.band || s.tags || s.fokusCount || R.planen) && <PlanBlock s={s} R={R} />}
       <h3 className="font-semibold text-lg">Tränarrapport</h3>
       <p className="mb-2">{R.sammanfattning}</p>
       {R.trend && <p className="mb-3 text-sm text-stone-500">{R.trend}</p>}
