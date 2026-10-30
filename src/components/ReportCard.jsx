@@ -66,6 +66,9 @@ export default function ReportCard({ s }) {
       <h3 className="font-semibold text-lg mb-1">Fördelning under passet</h3>
       <p className="text-sm text-stone-500 mb-2">{t} uttalanden identifierade</p>
       {t < 8 && <p className="mb-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-sm">Få uttalanden kunde identifieras (kort pass eller dåligt ljud) – tolka fördelningen försiktigt.</p>}
+      {(s.audio || s.filtered) && <p className="text-xs text-stone-600 mb-2">
+        {s.audio ? `Ljud som analyserades: ${Math.round(s.audio.kept / 60)} av ${Math.round(s.audio.total / 60)} min (tystnad bortklippt). ` : ''}
+        {s.filtered?.removed > 0 ? `Allmänt prat utan koppling till träningen (${s.filtered.removed} rader) har filtrerats bort.` : ''}</p>}
       <DistributionBar counts={s.counts} h="h-8" />
       <div className="mt-3 mb-4 space-y-1">
         {shares(s.counts).map(({ k, n, pct }) => (
@@ -84,12 +87,12 @@ export default function ReportCard({ s }) {
       <List title="Utvecklingsområden" items={R.utveckling} tone="text-gold-700" />
       {R.fokus && <div className="rounded-xl bg-gold-50 border border-gold-200 p-3 mb-3 text-sm"><b>Fokus nästa pass:</b> {R.fokus}</div>}
 
-      <details className="mb-2"><summary className="cursor-pointer text-stone-500">Alla uttalanden ({(s.utterances || []).length})</summary>
+      {(s.utterances || []).length > 0 && <details className="mb-2"><summary className="cursor-pointer text-stone-500">Alla uttalanden ({(s.utterances || []).length})</summary>
         <ul className="text-sm mt-2 space-y-1 max-h-72 overflow-auto">
           {(s.utterances || []).map((u, i) => <li key={i}><span className="text-stone-500">{u.tid} · {LABEL[u.typ]}</span><br />{u.text}</li>)}
-        </ul></details>
-      <details><summary className="cursor-pointer text-stone-500">Transkribering</summary>
-        <pre className="whitespace-pre-wrap text-sm max-h-72 overflow-auto mt-2">{s.transcript}</pre></details>
+        </ul></details>}
+      {s.transcript && <details><summary className="cursor-pointer text-stone-500">Transkribering</summary>
+        <pre className="whitespace-pre-wrap text-sm max-h-72 overflow-auto mt-2">{s.transcript}</pre></details>}
     </div>
   )
 }

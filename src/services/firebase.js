@@ -5,12 +5,13 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 
 const e = import.meta.env
 export const cloudEnabled = Boolean(e.VITE_FIREBASE_API_KEY && e.VITE_FIREBASE_PROJECT_ID)
+export const firebaseConfig = cloudEnabled ? {
+  apiKey: e.VITE_FIREBASE_API_KEY, authDomain: e.VITE_FIREBASE_AUTH_DOMAIN, projectId: e.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: e.VITE_FIREBASE_STORAGE_BUCKET, appId: e.VITE_FIREBASE_APP_ID
+} : null
 let auth = null, db = null
 if (cloudEnabled) {
-  const app = initializeApp({
-    apiKey: e.VITE_FIREBASE_API_KEY, authDomain: e.VITE_FIREBASE_AUTH_DOMAIN, projectId: e.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: e.VITE_FIREBASE_STORAGE_BUCKET, appId: e.VITE_FIREBASE_APP_ID
-  })
+  const app = initializeApp(firebaseConfig)
   auth = getAuth(app)
   db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
 }

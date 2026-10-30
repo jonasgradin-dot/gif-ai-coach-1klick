@@ -18,7 +18,7 @@ Sätt dessutom, när det passar, högst EN "tag" (annars tom sträng) som spegla
 - reflektion: fråga som får spelarna att reflektera (vad var roligast, vad lärde ni er, känner ni igen något från träningen)
 - fair_play: respekt/fair play, t.ex. tacka motståndare eller domare, följa reglerna
 - negativ: klandrande eller kritiskt tillrop riktat mot spelare, t.ex. för ett misstag
-Bedöm bara ordval, inte tonfall. Hoppa över spelares prat och oklara fragment. Citera kort (max 120 tecken).
+Bedöm bara ordval, inte tonfall. Hoppa över spelares prat, allmänt prat som inte rör träningen och oklara fragment. Citera kort (max 120 tecken).
 Fyll dessutom i för varje uttalande:
 - "fokus": vilket fokusområde i fotbollsspelet uttalandet handlar om (id enligt listan nedan)
 - "farg": vilken färdighet ur färdighetslistan som nämns eller övas (annars tom sträng)
@@ -39,6 +39,27 @@ Skriv exakt en post i "fokusomraden" per fokusområde som gäller för åldersgr
 const SYS_REFLECT = `Du sammanfattar en fotbollstränares TALADE reflektion efter ett träningspass (svenska, talspråk, kan vara osammanhängande). Du får också passets mätdata och AI-rapport.
 Håll dig till det tränaren faktiskt sa. Koppla gärna till Båstads GIF:s spelarutbildningsplan (egen upptäckt, frågor och vägledning, positivt ledarskap där misstag är en del av lärandet, beröm av goda försök) men bara när reflektionen ger underlag för det. Svara ENDAST med JSON:
 {"sammanfattning":"2-4 meningar","laranden":["max 3 insikter tränaren själv nämnde"],"atgarder":["max 3 konkreta saker att göra på nästa pass"],"koppling":"1-2 meningar om hur reflektionen stämmer med eller skiljer sig från fördelningen och planen"}`
+
+const SYS_FILTER = `Du får transkriberade rader (svenska) från en fotbollsträning. Varje rad har ett id inom hakparentes. Avgör vilka rader som är ALLMÄNT PRAT SOM INTE HAR MED TRÄNINGEN ATT GÖRA: privata samtal, vardagsprat (väder, mat, helg, jobb, familj), samtal mellan vuxna om annat, telefonsamtal, skämt som inte rör övningen, samt uppenbara transkriberingsfel utan innehåll.
+BEHÅLL allt som kan vara instruktioner, korrigeringar, frågor till spelare, beröm eller uppmuntran, organisation av övningar och spel (indelning, regler, tid, material, byten), matchprat och spelares svar på tränarens frågor. Vid minsta tvekan: behåll raden.
+Svara ENDAST med JSON: {"bort":[id,id,...]} (tom lista om inget ska bort).`
+
+// Tar bort allmänt prat som inte rör träningen. Skydd: tar GPT bort orimligt mycket (>70 %) behålls allt.
+export async function filterSegments(segments, cfg, onStatus = () => {}) {
+  if (segments.length < 12) return { segments, removed: 0 }
+  const lines = segments.map((s, i) => `[${i}] ${s.text.trim()}`)
+  const wins = []; let cur = ''
+  for (const l of lines) { if (cur && cur.length + l.length > 6000) { wins.push(cur); cur = '' } cur += l + '\n' }
+  if (cur) wins.push(cur)
+  const drop = new Set()
+  for (let i = 0; i < wins.length; i++) {
+    onStatus(`Filtrerar bort allmänt prat (${i + 1}/${wins.length})…`)
+    const j = await chatJson(cfg, SYS_FILTER, wins[i])
+    for (const id of Array.isArray(j.bort) ? j.bort : []) if (Number.isInteger(id) && id >= 0 && id < segments.length) drop.add(id)
+  }
+  if (drop.size > segments.length * 0.7) return { segments, removed: 0 }
+  return { segments: segments.filter((_, i) => !drop.has(i)), removed: drop.size }
+}
 
 export async function classify(segments, cfg, onStatus = () => {}, band = null) {
   const sys = SYS_CLASSIFY + '\n\nFokusområden (id: innebörd):\n' + fokusPrompt(band) + '\n\nFärdighetslista: ' + skillsFor(band).join(', ')

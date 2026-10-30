@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { save } from '../lib/util'
+import { cloudEnabled } from '../services/firebase'
 
 const clean = (n) => (n === 'Tränare' ? '' : n || '') // äldre standardnamn räknas som "inte ifyllt"
 
-export default function Profile({ coach, coaches, settings, setSettings, onSaveCoach, onNewCoach, onRemoveCoach, onSaved }) {
+export default function Profile({ coach, coaches, settings, setSettings, onSaveCoach, onNewCoach, onRemoveCoach, onSaved, onAdmin }) {
   const [name, setName] = useState('')
   const [team, setTeam] = useState('')
   const [pw, setPw] = useState('')
@@ -28,10 +29,12 @@ export default function Profile({ coach, coaches, settings, setSettings, onSaveC
           <input className="input mt-1 font-normal" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="off" /></label>
       </div>
       <button className="btn w-full" onClick={submit} disabled={!name.trim()}>Spara</button>
+      {cloudEnabled && <p className="mt-3 text-xs text-stone-700">Dina rapporter (utan ljud, transkribering och talad reflektion) delas med klubbens administratör.</p>}
       <div className="mt-6 text-sm flex gap-4">
         <button className="underline" onClick={onNewCoach}>+ Lägg till ytterligare tränare</button>
         {coaches.length > 1 && coach && <button className="underline text-red-600" onClick={() => confirm(`Radera ${coach.name || 'tränaren'} och alla pass?`) && onRemoveCoach(coach.id)}>Radera denna</button>}
       </div>
+      {onAdmin && <button className="mt-8 text-xs text-stone-600 underline" onClick={onAdmin}>Administratör</button>}
     </div>
   )
 }

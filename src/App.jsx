@@ -4,8 +4,9 @@ import Train from './pages/Train'
 import Report from './pages/Report'
 import History from './pages/History'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 import { allSessions, putSession } from './lib/db'
-import { loadCoaches, saveCoach, removeCoach, removeSession, syncAll } from './lib/store'
+import { loadCoaches, saveCoach, removeCoach, removeSession, syncAll, touchMember } from './lib/store'
 import { load, uid } from './lib/util'
 
 const TABS = [['dash', 'Start'], ['train', 'Träna'], ['hist', 'Historik'], ['profile', 'Profil']]
@@ -41,6 +42,7 @@ export default function App() {
       await reload()
       const r = await syncAll()
       if (r.ok) { setCoaches(loadCoaches()); await reload() }
+      touchMember(loadCoaches().find((c) => c.id === act.id)) // visar för administratören att tränaren använder appen
     })()
   }, [reload])
 
@@ -79,7 +81,8 @@ export default function App() {
         {tab === 'train' && <Train {...{ settings }} coach={shown} onDone={done} />}
         {tab === 'hist' && <History coach={shown} sessions={mine} open={open} />}
         {tab === 'report' && <Report session={sessions.find((s) => s.id === reportId)} settings={settings} back={() => setTab('hist')} reload={reload} />}
-        {tab === 'profile' && <Profile {...{ coach, coaches, onNewCoach, onRemoveCoach }} settings={raw} setSettings={setSettings} onSaveCoach={(c) => setCoaches(saveCoach(c))} onSaved={() => setTab('dash')} />}
+        {tab === 'admin' && <Admin back={() => setTab('profile')} />}
+        {tab === 'profile' && <Profile {...{ coach, coaches, onNewCoach, onRemoveCoach }} onAdmin={() => setTab('admin')} settings={raw} setSettings={setSettings} onSaveCoach={(c) => setCoaches(saveCoach(c))} onSaved={() => setTab('dash')} />}
       </main>
       <nav className="fixed bottom-0 inset-x-0 bg-black text-white pb-[env(safe-area-inset-bottom)]">
         <div className="flex max-w-xl mx-auto">
